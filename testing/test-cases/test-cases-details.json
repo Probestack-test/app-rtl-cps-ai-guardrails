@@ -1,0 +1,150 @@
+{
+  "artifactId" : "ai-guardrails",
+  "generatedAt" : "2026-10-02T18:38:54.419137956Z",
+  "testCaseCount" : 12,
+  "testCases" : [ {
+    "category" : "Positive",
+    "name" : "[POSITIVE] POST /evaluate/request",
+    "description" : "Happy path: valid request should return 200",
+    "request" : {
+      "method" : "POST",
+      "url" : "{{baseUrl}}/evaluate/request",
+      "path" : [ "evaluate", "request" ],
+      "headers" : { },
+      "body" : null
+    },
+    "assertions" : [ "pm.test(\"Status code is 200\", function() { if(pm.response.code !== 200) throw new Error(\"Expected 200 but got \" + pm.response.code); });" ]
+  }, {
+    "category" : "Positive",
+    "name" : "[POSITIVE] POST /evaluate/response",
+    "description" : "Happy path: valid request should return 200",
+    "request" : {
+      "method" : "POST",
+      "url" : "{{baseUrl}}/evaluate/response",
+      "path" : [ "evaluate", "response" ],
+      "headers" : { },
+      "body" : null
+    },
+    "assertions" : [ "pm.test(\"Status code is 200\", function() { if(pm.response.code !== 200) throw new Error(\"Expected 200 but got \" + pm.response.code); });" ]
+  }, {
+    "category" : "Positive",
+    "name" : "[POSITIVE] GET /policies/{actorId}",
+    "description" : "Happy path: valid request should return 200",
+    "request" : {
+      "method" : "GET",
+      "url" : "{{baseUrl}}/policies/{actorId}",
+      "path" : [ "policies", "{actorId}" ],
+      "headers" : { },
+      "body" : null
+    },
+    "assertions" : [ "pm.test(\"Status code is 200\", function() { if(pm.response.code !== 200) throw new Error(\"Expected 200 but got \" + pm.response.code); });" ]
+  }, {
+    "category" : "Positive",
+    "name" : "[POSITIVE] GET /usage",
+    "description" : "Happy path: valid request should return 200",
+    "request" : {
+      "method" : "GET",
+      "url" : "{{baseUrl}}/usage",
+      "path" : [ "usage" ],
+      "headers" : { },
+      "body" : null
+    },
+    "assertions" : [ "pm.test(\"Status code is 200\", function() { if(pm.response.code !== 200) throw new Error(\"Expected 200 but got \" + pm.response.code); });" ]
+  }, {
+    "category" : "Negative",
+    "name" : "[NEGATIVE] GET /policies/{actorId}",
+    "description" : "Missing required path parameter: actorId",
+    "request" : {
+      "method" : "GET",
+      "url" : "{{baseUrl}}/policies/{actorId}",
+      "path" : [ "policies", "{actorId}" ],
+      "headers" : { },
+      "body" : null
+    },
+    "assertions" : [ "pm.test(\"Status code is 400\", function() { if(pm.response.code !== 400) throw new Error(\"Expected 400 but got \" + pm.response.code); });" ]
+  }, {
+    "category" : "Negative",
+    "name" : "[NEGATIVE] GET /policies/{actorId}",
+    "description" : "Invalid type for parameter actorId (expected string)",
+    "request" : {
+      "method" : "GET",
+      "url" : "{{baseUrl}}/policies/{actorId}",
+      "path" : [ "policies", "{actorId}" ],
+      "headers" : { },
+      "body" : null
+    },
+    "assertions" : [ "pm.test(\"Status code is 400\", function() { if(pm.response.code !== 400) throw new Error(\"Expected 400 but got \" + pm.response.code); });" ]
+  }, {
+    "category" : "Negative",
+    "name" : "[NEGATIVE] GET /usage",
+    "description" : "Missing required query parameter: scope",
+    "request" : {
+      "method" : "GET",
+      "url" : "{{baseUrl}}/usage",
+      "path" : [ "usage" ],
+      "headers" : { },
+      "body" : null
+    },
+    "assertions" : [ "pm.test(\"Status code is 400\", function() { if(pm.response.code !== 400) throw new Error(\"Expected 400 but got \" + pm.response.code); });" ]
+  }, {
+    "category" : "Negative",
+    "name" : "[NEGATIVE] GET /usage",
+    "description" : "Invalid type for parameter scope (expected string)",
+    "request" : {
+      "method" : "GET",
+      "url" : "{{baseUrl}}/usage",
+      "path" : [ "usage" ],
+      "headers" : { },
+      "body" : null
+    },
+    "assertions" : [ "pm.test(\"Status code is 400\", function() { if(pm.response.code !== 400) throw new Error(\"Expected 400 but got \" + pm.response.code); });" ]
+  }, {
+    "category" : "Performance",
+    "name" : "[PERFORMANCE] POST /evaluate/request",
+    "description" : "Performance: response time should be < 2000ms",
+    "request" : {
+      "method" : "POST",
+      "url" : "{{baseUrl}}/evaluate/request",
+      "path" : [ "evaluate", "request" ],
+      "headers" : { },
+      "body" : null
+    },
+    "assertions" : [ "pm.test(\"Response time < 2000 ms\", function() { if(pm.response.responseTime > 2000) throw new Error(\"Response time \" + pm.response.responseTime + \"ms exceeds 2000ms\"); });" ]
+  }, {
+    "category" : "Performance",
+    "name" : "[PERFORMANCE] POST /evaluate/response",
+    "description" : "Performance: response time should be < 2000ms",
+    "request" : {
+      "method" : "POST",
+      "url" : "{{baseUrl}}/evaluate/response",
+      "path" : [ "evaluate", "response" ],
+      "headers" : { },
+      "body" : null
+    },
+    "assertions" : [ "pm.test(\"Response time < 2000 ms\", function() { if(pm.response.responseTime > 2000) throw new Error(\"Response time \" + pm.response.responseTime + \"ms exceeds 2000ms\"); });" ]
+  }, {
+    "category" : "Performance",
+    "name" : "[PERFORMANCE] GET /policies/{actorId}",
+    "description" : "Performance: response time should be < 2000ms",
+    "request" : {
+      "method" : "GET",
+      "url" : "{{baseUrl}}/policies/{actorId}",
+      "path" : [ "policies", "{actorId}" ],
+      "headers" : { },
+      "body" : null
+    },
+    "assertions" : [ "pm.test(\"Response time < 2000 ms\", function() { if(pm.response.responseTime > 2000) throw new Error(\"Response time \" + pm.response.responseTime + \"ms exceeds 2000ms\"); });" ]
+  }, {
+    "category" : "Performance",
+    "name" : "[PERFORMANCE] GET /usage",
+    "description" : "Performance: response time should be < 2000ms",
+    "request" : {
+      "method" : "GET",
+      "url" : "{{baseUrl}}/usage",
+      "path" : [ "usage" ],
+      "headers" : { },
+      "body" : null
+    },
+    "assertions" : [ "pm.test(\"Response time < 2000 ms\", function() { if(pm.response.responseTime > 2000) throw new Error(\"Response time \" + pm.response.responseTime + \"ms exceeds 2000ms\"); });" ]
+  } ]
+}
